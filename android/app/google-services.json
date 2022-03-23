@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "176894075808",
+    "firebase_url": "https://organizzefinanceapp-default-rtdb.firebaseio.com",
+    "project_id": "organizzefinanceapp",
+    "storage_bucket": "organizzefinanceapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176894075808:android:f9f663f9942a6fe2c23ac5",
+        "android_client_info": {
+          "package_name": "com.example.organizze_finance_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "176894075808-l9ae0m9026b5sgdptgfi2bfbm0e4m34j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYJMIrP8whp2UGykvE08j-3GcyYaiKL5U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "176894075808-l9ae0m9026b5sgdptgfi2bfbm0e4m34j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
