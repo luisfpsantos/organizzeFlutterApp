@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:organizze_app/data/datasources/firebase/verify_login_with_databse_datasource_imp.dart';
+import 'package:organizze_app/data/repositories/verify_login_with_database_repository_imp.dart';
+import 'package:organizze_app/domain/usecases/verify_login_with_database/verify_login_with_database_usecase_imp.dart';
+import 'package:organizze_app/presentation/controllers/login_page_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -10,6 +14,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _accessWithBiometry = false;
+  final LoginPageController _loginPageController = LoginPageController(
+    VerifyLoginWithDatabaseUsecaseImp(
+      VerifyLoginWithDatabaseRepositoryImp(
+        VerifyLoginWithDatabaseDatasourceImp(),
+      ),
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,7 +156,10 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
         ),
       ),
-      onPressed: () async {},
+      onPressed: () async {
+        var result = await _loginPageController.verifyLogin('luis', '12345');
+        result.fold((l) => print(l), (r) => print(r));
+      },
       child: const Text(
         'Entrar',
         style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
