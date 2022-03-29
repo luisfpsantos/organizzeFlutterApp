@@ -1,12 +1,12 @@
 class UserEntity {
   String name;
-  String usuario;
+  String user;
   String password;
   bool loginWithBiometry;
 
   UserEntity({
     required this.name,
-    required this.usuario,
+    required this.user,
     required this.password,
     required this.loginWithBiometry,
   });
