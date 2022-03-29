@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:organizze_app/data/datasources/firebase/get_user_in_database_datasource_imp.dart';
 import 'package:organizze_app/data/datasources/firebase/verify_login_with_databse_datasource_imp.dart';
+import 'package:organizze_app/data/repositories/get_user_in_database_repository_imp.dart';
 import 'package:organizze_app/data/repositories/verify_login_with_database_repository_imp.dart';
+import 'package:organizze_app/domain/entities/user_entity.dart';
+import 'package:organizze_app/domain/errors/verify_login_with_database_errors.dart';
+import 'package:organizze_app/domain/usecases/get_user_in_database/get_user_in_database_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/verify_login_with_database/verify_login_with_database_usecase_imp.dart';
 import 'package:organizze_app/presentation/controllers/login_page_controller.dart';
 
@@ -14,13 +19,29 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _accessWithBiometry = false;
+
+  String? userError;
+  String? passwordError;
+
+  bool isLoading = false;
+  bool readingOnly = false;
+
+  final TextEditingController _userTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
+
   final LoginPageController _loginPageController = LoginPageController(
     VerifyLoginWithDatabaseUsecaseImp(
       VerifyLoginWithDatabaseRepositoryImp(
         VerifyLoginWithDatabaseDatasourceImp(),
       ),
     ),
+    GetUserInDatabaseUsecaseImp(
+      GetUserInDatabaseRepositoryImp(
+        GetUserInDatabaseDatasourceImp(),
+      ),
+    ),
   );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +110,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildInputUser() {
     return TextFormField(
+      controller: _userTextController,
       keyboardType: TextInputType.text,
+      readOnly: readingOnly,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.person),
         label: const Text('Usuário'),
@@ -101,14 +124,17 @@ class _LoginPageState extends State<LoginPage> {
           borderSide: const BorderSide(color: Colors.blue, width: 2),
           borderRadius: BorderRadius.circular(20),
         ),
+        errorText: userError,
       ),
     );
   }
 
   Widget buildInputPass() {
     return TextFormField(
+      controller: _passwordTextController,
       obscureText: true,
       keyboardType: TextInputType.text,
+      readOnly: readingOnly,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.lock),
         label: const Text('Senha'),
@@ -120,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
           borderSide: const BorderSide(color: Colors.blue, width: 2),
           borderRadius: BorderRadius.circular(20),
         ),
+        errorText: passwordError,
       ),
     );
   }
@@ -157,13 +184,64 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       onPressed: () async {
-        var result = await _loginPageController.verifyLogin('luis', '12345');
-        result.fold((l) => print(l), (r) => print(r));
+        setState(() {
+          readingOnly = true;
+          isLoading = true;
+          userError = null;
+          passwordError = null;
+        });
+        var verifyLogin = await _loginPageController.verifyLogin(
+            _userTextController.text, _passwordTextController.text);
+
+        verifyLogin.fold(
+            (exception) => {
+                  setState(
+                    () => {
+                      if (exception is InvalidUser || exception is UserNotfound)
+                        {userError = 'Usúario Incorreto'},
+                      if (exception is InvalidPassword)
+                        {passwordError = 'Senha Incorreta'},
+                      if (exception is ErrorDataSource)
+                        {passwordError = 'Contatar Administrador'},
+                      isLoading = false,
+                      readingOnly = false
+                    },
+                  )
+                },
+            (result) => {
+                  if (result)
+                    {
+                      _loginPageController
+                          .getUser(_userTextController.text)
+                          .then(
+                            (value) => value.fold(
+                              (l) => print(l),
+                              (r) => print(r.name),
+                            ),
+                          ),
+                      setState(
+                        () => {isLoading = false, readingOnly = false},
+                      )
+                    }
+                  else
+                    {
+                      setState(() => {
+                            passwordError = 'Usuario sem Permissão',
+                            isLoading = false,
+                            readingOnly = false
+                          })
+                    }
+                });
       },
-      child: const Text(
-        'Entrar',
-        style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-      ),
+      child: isLoading
+          ? const CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 4,
+            )
+          : const Text(
+              'Entrar',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
     );
   }
 
