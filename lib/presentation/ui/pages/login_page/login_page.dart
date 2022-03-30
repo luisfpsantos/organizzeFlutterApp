@@ -61,22 +61,24 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _loginPageController.getLoginOptionsLocal().then((response) => {
-          response.fold(
-            (exception) => {},
-            (result) => {
-              print(result),
-              setState(() {
-                if (result['accessWithBiometry']) {
-                  _accessWithBiometry = result['accessWithBiometry'];
-                }
-                _userTextController.text = result['user'];
-                _passwordTextController.text = result['password'];
-                readingOnly = true;
-              })
-            },
-          ),
-        });
+    _loginPageController.getLoginOptionsLocal().then(
+          (response) => {
+            response.fold(
+              (exception) => {},
+              (result) => {
+                setState(() {
+                  if (result['accessWithBiometry']) {
+                    _accessWithBiometry = result['accessWithBiometry'];
+                  }
+                  _userTextController.text = result['user'];
+                  _passwordTextController.text = result['password'];
+                  readingOnly = true;
+                  _rememberMe = true;
+                })
+              },
+            ),
+          },
+        );
   }
 
   @override
@@ -273,42 +275,43 @@ class _LoginPageState extends State<LoginPage> {
           .getUserInDatabase(_userTextController.text);
 
       user.fold(
-          (exception) => {
-                if (exception is GetUserNotFound ||
-                    exception is GetUserDatasourceError)
-                  {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Erro ao Logar')),
-                    ),
-                  },
-                setState(() {
-                  isLoading = false;
-                  readingOnly = false;
-                })
-              },
-          (result) => {
-                if (_rememberMe)
-                  {
-                    _loginPageController.saveLoginOptionsLocal({
-                      'user': _userTextController.text,
-                      'password': _passwordTextController.text,
-                      'accessWithBiometry': _accessWithBiometry
-                    }),
-                    setState(() {
-                      isLoading = false;
-                      readingOnly = false;
-                    })
-                    // e depois chamo a rota de home passando user entity
-                  }
-                else
-                  {
-                    // chamo a rota de home passando user Entity
-                    setState(() {
-                      isLoading = false;
-                      readingOnly = false;
-                    })
-                  },
-              });
+        (exception) => {
+          if (exception is GetUserNotFound ||
+              exception is GetUserDatasourceError)
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Erro ao Logar')),
+              )
+            },
+          setState(() {
+            isLoading = false;
+            readingOnly = false;
+          })
+        },
+        (result) => {
+          if (_rememberMe)
+            {
+              _loginPageController.saveLoginOptionsLocal({
+                'user': _userTextController.text,
+                'password': _passwordTextController.text,
+                'accessWithBiometry': _accessWithBiometry
+              }),
+              setState(() {
+                isLoading = false;
+                readingOnly = false;
+              })
+              // e depois chamo a rota de home passando user entity
+            }
+          else
+            {
+              // chamo a rota de home passando user Entity
+              setState(() {
+                isLoading = false;
+                readingOnly = false;
+              })
+            }
+        },
+      );
     }
 
     void verifyUserAndPassword() async {
@@ -316,37 +319,36 @@ class _LoginPageState extends State<LoginPage> {
           _userTextController.text, _passwordTextController.text);
 
       verifyLogin.fold(
-          (exception) => {
-                setState(() {
-                  if (exception is InvalidUser || exception is UserNotfound) {
-                    userError = 'Usúario Incorreto';
-                  }
-                  if (exception is InvalidPassword) {
-                    passwordError = 'Senha Incorreta';
-                  }
-                  if (exception is ErrorDataSource) {
-                    passwordError = 'Contatar Administrador';
-                  }
-                  isLoading = false;
-                  readingOnly = false;
-                })
-              },
-          (result) => {
-                if (result)
-                  {
-                    getUser(),
-                  }
-                else
-                  {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Usuario não Permitido')),
-                    ),
-                    setState(() {
-                      isLoading = false;
-                      readingOnly = false;
-                    })
-                  }
-              });
+        (exception) => {
+          setState(() {
+            if (exception is InvalidUser || exception is UserNotfound) {
+              userError = 'Usúario Incorreto';
+            }
+            if (exception is InvalidPassword) {
+              passwordError = 'Senha Incorreta';
+            }
+            if (exception is ErrorDataSource) {
+              passwordError = 'Contatar Administrador';
+            }
+            isLoading = false;
+            readingOnly = false;
+          })
+        },
+        (result) => {
+          if (result)
+            {getUser()}
+          else
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Usuario não Permitido')),
+              ),
+              setState(() {
+                isLoading = false;
+                readingOnly = false;
+              })
+            }
+        },
+      );
     }
 
     verifyUserAndPassword();

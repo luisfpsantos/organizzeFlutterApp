@@ -45,7 +45,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCr5sSkrGLHQ7sjCXX95n8p2V2hk-wMEGI',
-    appId: '1:197283713052:android:f4214dfe5c2b597d66cfd9',
+    appId: '1:197283713052:android:b9b0a9132d4b197a66cfd9',
     messagingSenderId: '197283713052',
     projectId: 'organizze-app-flutter',
     storageBucket: 'organizze-app-flutter.appspot.com',
