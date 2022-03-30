@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/data/datasources/firebase/get_user_in_database_datasource_imp.dart';
 import 'package:organizze_app/data/datasources/firebase/verify_login_with_databse_datasource_imp.dart';
+import 'package:organizze_app/data/datasources/local/get_login_options_local_datasource_imp.dart';
+import 'package:organizze_app/data/datasources/local/save_login_options_local_datasource_imp.dart';
+import 'package:organizze_app/data/repositories/get_login_options_local_repository_imp.dart';
 import 'package:organizze_app/data/repositories/get_user_in_database_repository_imp.dart';
+import 'package:organizze_app/data/repositories/save_login_options_local_repository_imp.dart';
 import 'package:organizze_app/data/repositories/verify_login_with_database_repository_imp.dart';
-import 'package:organizze_app/domain/entities/user_entity.dart';
+import 'package:organizze_app/domain/errors/get_user_in_database_errors.dart';
 import 'package:organizze_app/domain/errors/verify_login_with_database_errors.dart';
+import 'package:organizze_app/domain/usecases/get_login_options_local/get_login_options_local_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/get_user_in_database/get_user_in_database_usecase_imp.dart';
+import 'package:organizze_app/domain/usecases/save_login_options_local/save_login_options_local_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/verify_login_with_database/verify_login_with_database_usecase_imp.dart';
 import 'package:organizze_app/presentation/controllers/login_page_controller.dart';
 
@@ -40,7 +46,40 @@ class _LoginPageState extends State<LoginPage> {
         GetUserInDatabaseDatasourceImp(),
       ),
     ),
+    SaveLoginOptionsLocalUsecaseImp(
+      SaveLoginOptionsLocalRepositoryImp(
+        SaveLoginOptionsLocalDatasourceImp(),
+      ),
+    ),
+    GetLoginOptionsLocalUsecaseImp(
+      GetLoginOptionsLocalRepositoryImp(
+        GetLoginOptionsLocalDatasourceImp(),
+      ),
+    ),
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _loginPageController.getLoginOptionsLocal().then(
+          (response) => {
+            response.fold(
+              (exception) => {},
+              (result) => {
+                setState(() {
+                  if (result['accessWithBiometry']) {
+                    _accessWithBiometry = result['accessWithBiometry'];
+                  }
+                  _userTextController.text = result['user'];
+                  _passwordTextController.text = result['password'];
+                  readingOnly = true;
+                  _rememberMe = true;
+                })
+              },
+            ),
+          },
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +198,10 @@ class _LoginPageState extends State<LoginPage> {
             value: _rememberMe,
             onChanged: (value) {
               setState(() {
-                _rememberMe = value!;
+                if (!value!) {
+                  readingOnly = false;
+                }
+                _rememberMe = value;
               });
             }),
         const Text('Lembrar Login'),
@@ -183,55 +225,8 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
         ),
       ),
-      onPressed: () async {
-        setState(() {
-          readingOnly = true;
-          isLoading = true;
-          userError = null;
-          passwordError = null;
-        });
-        var verifyLogin = await _loginPageController.verifyLogin(
-            _userTextController.text, _passwordTextController.text);
-
-        verifyLogin.fold(
-            (exception) => {
-                  setState(
-                    () => {
-                      if (exception is InvalidUser || exception is UserNotfound)
-                        {userError = 'Usúario Incorreto'},
-                      if (exception is InvalidPassword)
-                        {passwordError = 'Senha Incorreta'},
-                      if (exception is ErrorDataSource)
-                        {passwordError = 'Contatar Administrador'},
-                      isLoading = false,
-                      readingOnly = false
-                    },
-                  )
-                },
-            (result) => {
-                  if (result)
-                    {
-                      _loginPageController
-                          .getUser(_userTextController.text)
-                          .then(
-                            (value) => value.fold(
-                              (l) => print(l),
-                              (r) => print(r.name),
-                            ),
-                          ),
-                      setState(
-                        () => {isLoading = false, readingOnly = false},
-                      )
-                    }
-                  else
-                    {
-                      setState(() => {
-                            passwordError = 'Usuario sem Permissão',
-                            isLoading = false,
-                            readingOnly = false
-                          })
-                    }
-                });
+      onPressed: () {
+        validLogin();
       },
       child: isLoading
           ? const CircularProgressIndicator(
@@ -265,5 +260,97 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: () {},
       ),
     );
+  }
+
+  void validLogin() {
+    setState(() {
+      readingOnly = true;
+      isLoading = true;
+      userError = null;
+      passwordError = null;
+    });
+
+    void getUser() async {
+      var user = await _loginPageController
+          .getUserInDatabase(_userTextController.text);
+
+      user.fold(
+        (exception) => {
+          if (exception is GetUserNotFound ||
+              exception is GetUserDatasourceError)
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Erro ao Logar')),
+              )
+            },
+          setState(() {
+            isLoading = false;
+            readingOnly = false;
+          })
+        },
+        (result) => {
+          if (_rememberMe)
+            {
+              _loginPageController.saveLoginOptionsLocal({
+                'user': _userTextController.text,
+                'password': _passwordTextController.text,
+                'accessWithBiometry': _accessWithBiometry
+              }),
+              setState(() {
+                isLoading = false;
+                readingOnly = false;
+              })
+              // e depois chamo a rota de home passando user entity
+            }
+          else
+            {
+              // chamo a rota de home passando user Entity
+              setState(() {
+                isLoading = false;
+                readingOnly = false;
+              })
+            }
+        },
+      );
+    }
+
+    void verifyUserAndPassword() async {
+      var verifyLogin = await _loginPageController.verifyLogin(
+          _userTextController.text, _passwordTextController.text);
+
+      verifyLogin.fold(
+        (exception) => {
+          setState(() {
+            if (exception is InvalidUser || exception is UserNotfound) {
+              userError = 'Usúario Incorreto';
+            }
+            if (exception is InvalidPassword) {
+              passwordError = 'Senha Incorreta';
+            }
+            if (exception is ErrorDataSource) {
+              passwordError = 'Contatar Administrador';
+            }
+            isLoading = false;
+            readingOnly = false;
+          })
+        },
+        (result) => {
+          if (result)
+            {getUser()}
+          else
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Usuario não Permitido')),
+              ),
+              setState(() {
+                isLoading = false;
+                readingOnly = false;
+              })
+            }
+        },
+      );
+    }
+
+    verifyUserAndPassword();
   }
 }
