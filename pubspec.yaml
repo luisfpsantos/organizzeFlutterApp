@@ -31,6 +31,7 @@ dependencies:
   cloud_firestore:
   dartz:
   shared_preferences:
+  local_auth:
   flutter:
     sdk: flutter
 

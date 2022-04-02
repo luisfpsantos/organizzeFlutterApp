@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:organizze_app/domain/entities/user_entity.dart';
+import 'package:organizze_app/domain/usecases/get_auth_biometry/get_auth_biometry_usecase.dart';
 import 'package:organizze_app/domain/usecases/get_login_options_local/get_login_options_local_usecase.dart';
 import 'package:organizze_app/domain/usecases/get_user_in_database/get_user_in_database_usecase.dart';
 import 'package:organizze_app/domain/usecases/save_login_options_local/save_login_options_local_usecase.dart';
@@ -10,12 +11,15 @@ class LoginPageController {
   final GetUserInDatabaseUsecase _getUserInDatabaseUsecase;
   final SaveLoginOptionsLocalUsecase _saveLoginOptionsLocalUsecase;
   final GetLoginOptionsLocalUsecase _getLoginOptionsLocalUsecase;
+  final GetAuthBiometryUsecase _getAuthBiometryUsecase;
 
   LoginPageController(
-      this._verifyLoginWithDatabaseUsecase,
-      this._getUserInDatabaseUsecase,
-      this._saveLoginOptionsLocalUsecase,
-      this._getLoginOptionsLocalUsecase);
+    this._verifyLoginWithDatabaseUsecase,
+    this._getUserInDatabaseUsecase,
+    this._saveLoginOptionsLocalUsecase,
+    this._getLoginOptionsLocalUsecase,
+    this._getAuthBiometryUsecase,
+  );
 
   Future<Either<Exception, bool>> verifyLogin(
       String user, String password) async {
@@ -33,5 +37,9 @@ class LoginPageController {
 
   Future<Either<Exception, Map<String, dynamic>>> getLoginOptionsLocal() async {
     return await _getLoginOptionsLocalUsecase();
+  }
+
+  Future<Either<Exception, bool>> getAuthBiometry() async {
+    return await _getAuthBiometryUsecase();
   }
 }

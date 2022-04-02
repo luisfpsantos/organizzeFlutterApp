@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:organizze_app/firebase_options.dart';
-import 'package:organizze_app/presentation/ui/pages/login_page/login_page.dart';
+import 'package:organizze_app/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +21,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      initialRoute: '/',
+      onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
     );
   }
 }
