@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/data/datasources/firebase/get_user_in_database_datasource_imp.dart';
 import 'package:organizze_app/data/datasources/firebase/verify_login_with_databse_datasource_imp.dart';
+import 'package:organizze_app/data/datasources/local/get_auth_biometry_datasource_imp.dart';
 import 'package:organizze_app/data/datasources/local/get_login_options_local_datasource_imp.dart';
 import 'package:organizze_app/data/datasources/local/save_login_options_local_datasource_imp.dart';
+import 'package:organizze_app/data/repositories/get_auth_biometry_repository_imp.dart';
 import 'package:organizze_app/data/repositories/get_login_options_local_repository_imp.dart';
 import 'package:organizze_app/data/repositories/get_user_in_database_repository_imp.dart';
 import 'package:organizze_app/data/repositories/save_login_options_local_repository_imp.dart';
 import 'package:organizze_app/data/repositories/verify_login_with_database_repository_imp.dart';
 import 'package:organizze_app/domain/errors/get_user_in_database_errors.dart';
 import 'package:organizze_app/domain/errors/verify_login_with_database_errors.dart';
+import 'package:organizze_app/domain/usecases/get_auth_biometry/get_auth_biometry_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/get_login_options_local/get_login_options_local_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/get_user_in_database/get_user_in_database_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/save_login_options_local/save_login_options_local_usecase_imp.dart';
 import 'package:organizze_app/domain/usecases/verify_login_with_database/verify_login_with_database_usecase_imp.dart';
 import 'package:organizze_app/presentation/controllers/login_page_controller.dart';
+import 'package:organizze_app/presentation/ui/pages/home_page/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
+
+  static const routName = '/';
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -29,8 +35,8 @@ class _LoginPageState extends State<LoginPage> {
   String? userError;
   String? passwordError;
 
-  bool isLoading = false;
-  bool readingOnly = false;
+  bool _isLoading = false;
+  bool _readingOnly = false;
 
   final TextEditingController _userTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
@@ -56,29 +62,32 @@ class _LoginPageState extends State<LoginPage> {
         GetLoginOptionsLocalDatasourceImp(),
       ),
     ),
+    GetAuthBiometryUsecaseImp(
+      GetAuthBiometryRepositoryImp(
+        GetAuthBiometryDatasourceImp(),
+      ),
+    ),
   );
 
   @override
   void initState() {
     super.initState();
-    _loginPageController.getLoginOptionsLocal().then(
-          (response) => {
-            response.fold(
-              (exception) => {},
-              (result) => {
-                setState(() {
-                  if (result['accessWithBiometry']) {
-                    _accessWithBiometry = result['accessWithBiometry'];
-                  }
-                  _userTextController.text = result['user'];
-                  _passwordTextController.text = result['password'];
-                  readingOnly = true;
-                  _rememberMe = true;
-                })
-              },
-            ),
-          },
-        );
+    _loginPageController.getLoginOptionsLocal().then((response) => {
+          response.fold(
+            (exception) => {},
+            (result) => {
+              setState(() {
+                if (result['accessWithBiometry']) {
+                  _accessWithBiometry = result['accessWithBiometry'];
+                }
+                _userTextController.text = result['user'];
+                _passwordTextController.text = result['password'];
+                _readingOnly = true;
+                _rememberMe = true;
+              })
+            },
+          ),
+        });
   }
 
   @override
@@ -109,12 +118,6 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
                     child: buildSubmitButton(),
                   ),
-                  const Text(
-                    'Ou\nEntrar Com',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  buildGoogleButton(),
                 ],
               ),
             ),
@@ -151,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
     return TextFormField(
       controller: _userTextController,
       keyboardType: TextInputType.text,
-      readOnly: readingOnly,
+      readOnly: _readingOnly,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.person),
         label: const Text('Usuário'),
@@ -173,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
       controller: _passwordTextController,
       obscureText: true,
       keyboardType: TextInputType.text,
-      readOnly: readingOnly,
+      readOnly: _readingOnly,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.lock),
         label: const Text('Senha'),
@@ -192,27 +195,19 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildEntryOptions() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Checkbox(
             value: _rememberMe,
             onChanged: (value) {
               setState(() {
                 if (!value!) {
-                  readingOnly = false;
+                  _readingOnly = false;
                 }
                 _rememberMe = value;
               });
             }),
         const Text('Lembrar Login'),
-        Checkbox(
-            value: _accessWithBiometry,
-            onChanged: (value) {
-              setState(() {
-                _accessWithBiometry = value!;
-              });
-            }),
-        const Text('Utilizar Biometria'),
       ],
     );
   }
@@ -226,9 +221,9 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       onPressed: () {
-        validLogin();
+        _validLogin();
       },
-      child: isLoading
+      child: _isLoading
           ? const CircularProgressIndicator(
               color: Colors.white,
               strokeWidth: 4,
@@ -240,37 +235,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildGoogleButton() {
-    return Container(
-      margin: const EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue, width: 2),
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: TextButton(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.all(5),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        ),
-        child: Image.asset(
-          'assets/images/google.png',
-          scale: 10,
-        ),
-        onPressed: () {},
-      ),
-    );
-  }
-
-  void validLogin() {
+  void _validLogin() {
     setState(() {
-      readingOnly = true;
-      isLoading = true;
+      _readingOnly = true;
+      _isLoading = true;
       userError = null;
       passwordError = null;
     });
 
-    void getUser() async {
+    void _getUser() async {
       var user = await _loginPageController
           .getUserInDatabase(_userTextController.text);
 
@@ -284,8 +257,8 @@ class _LoginPageState extends State<LoginPage> {
               )
             },
           setState(() {
-            isLoading = false;
-            readingOnly = false;
+            _isLoading = false;
+            _readingOnly = false;
           })
         },
         (result) => {
@@ -297,24 +270,33 @@ class _LoginPageState extends State<LoginPage> {
                 'accessWithBiometry': _accessWithBiometry
               }),
               setState(() {
-                isLoading = false;
-                readingOnly = false;
-              })
-              // e depois chamo a rota de home passando user entity
+                _isLoading = false;
+                _readingOnly = false;
+              }),
+              Navigator.pushReplacementNamed(
+                context,
+                HomePage.routName,
+                arguments: result,
+              )
             }
           else
             {
-              // chamo a rota de home passando user Entity
+              _loginPageController.saveLoginOptionsLocal({}),
               setState(() {
-                isLoading = false;
-                readingOnly = false;
-              })
+                _isLoading = false;
+                _readingOnly = false;
+              }),
+              Navigator.pushReplacementNamed(
+                context,
+                HomePage.routName,
+                arguments: result,
+              )
             }
         },
       );
     }
 
-    void verifyUserAndPassword() async {
+    void _verifyUserAndPassword() async {
       var verifyLogin = await _loginPageController.verifyLogin(
           _userTextController.text, _passwordTextController.text);
 
@@ -330,27 +312,27 @@ class _LoginPageState extends State<LoginPage> {
             if (exception is ErrorDataSource) {
               passwordError = 'Contatar Administrador';
             }
-            isLoading = false;
-            readingOnly = false;
+            _isLoading = false;
+            _readingOnly = false;
           })
         },
         (result) => {
           if (result)
-            {getUser()}
+            {_getUser()}
           else
             {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Usuario não Permitido')),
               ),
               setState(() {
-                isLoading = false;
-                readingOnly = false;
+                _isLoading = false;
+                _readingOnly = false;
               })
             }
         },
       );
     }
 
-    verifyUserAndPassword();
+    _verifyUserAndPassword();
   }
 }
