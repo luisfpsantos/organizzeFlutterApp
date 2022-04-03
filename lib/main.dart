@@ -20,7 +20,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      theme: ThemeData.light(),
       initialRoute: '/',
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
