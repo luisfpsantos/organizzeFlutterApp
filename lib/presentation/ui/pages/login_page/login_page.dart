@@ -93,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 240, 242, 245),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -158,6 +159,7 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.person),
         label: const Text('Usuário'),
+        floatingLabelStyle: const TextStyle(fontSize: 22),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.blue),
           borderRadius: BorderRadius.circular(20),
@@ -167,6 +169,7 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
         ),
         errorText: userError,
+        errorStyle: const TextStyle(fontSize: 16),
       ),
     );
   }
@@ -180,6 +183,7 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.lock),
         label: const Text('Senha'),
+        floatingLabelStyle: const TextStyle(fontSize: 22),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.blue),
           borderRadius: BorderRadius.circular(20),
@@ -189,6 +193,7 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(20),
         ),
         errorText: passwordError,
+        errorStyle: const TextStyle(fontSize: 16),
       ),
     );
   }

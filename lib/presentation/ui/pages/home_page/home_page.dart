@@ -49,45 +49,40 @@ class _HomePageState extends State<HomePage> {
                 buildhomeAppBar(),
                 biuldCard(
                   marginTop: 150,
-                  children: [
-                    buildBalance(),
-                    buildMyAccounts(
-                      accounts: [
-                        buildAccount(),
-                        buildAccount(),
-                      ],
+                  itens: Column(
+                    children: [
+                      buildBalance(),
+                      buildMyAccounts(
+                        accounts: Column(
+                          children: [
+                            buildAccount(),
+                            buildAccount(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            biuldCard(
+              itens: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      'Cartões de Crédito',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            biuldCard(
-              children: [
-                const SizedBox(
-                  height: 150,
-                ),
-              ],
-            ),
-            biuldCard(
-              children: [
-                const SizedBox(
-                  height: 100,
-                ),
-              ],
-            ),
-            biuldCard(
-              children: [
-                const SizedBox(
-                  height: 100,
-                ),
-              ],
-            ),
-            biuldCard(
-              children: [
-                const SizedBox(
-                  height: 100,
-                ),
-              ],
+                  ),
+                  biuldCreditCard(),
+                  biuldCreditCard(),
+                ],
+              ),
             ),
           ],
         ),
@@ -143,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             ),
             Padding(
               padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width - 230, top: 20),
+                  left: MediaQuery.of(context).size.width - 240, top: 20),
               child: IconButton(
                 color: Colors.white,
                 iconSize: 30,
@@ -157,7 +152,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget biuldCard({required List<Widget> children, double marginTop = 0}) {
+  Widget biuldCard({required Column itens, double marginTop = 0}) {
     return Container(
       margin: EdgeInsets.fromLTRB(25, marginTop, 25, 16),
       width: MediaQuery.of(context).size.width,
@@ -170,9 +165,7 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: children,
-        ),
+        child: itens,
       ),
     );
   }
@@ -248,7 +241,79 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildMyAccounts({required List<Widget> accounts}) {
+  Widget biuldCreditCard() {
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 15),
+      ),
+      onPressed: () {},
+      child: Column(
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.account_balance),
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'Banco Inter',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 35),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 5),
+                      child: Text(
+                        'Disponível',
+                        style: TextStyle(
+                          color: Color.fromARGB(200, 85, 85, 85),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'R\$ 5.000,00',
+                      style: TextStyle(color: Colors.red),
+                    )
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 5),
+                    child: Text(
+                      'Fatura Atual',
+                      style: TextStyle(
+                        color: Color.fromARGB(200, 85, 85, 85),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'R\$ 5.000,00',
+                    style: TextStyle(color: Colors.red),
+                  )
+                ],
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildMyAccounts({required Column accounts}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -262,9 +327,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        Column(
-          children: accounts,
-        ),
+        accounts,
         Center(
           child: ElevatedButton(
             child: const Text(
