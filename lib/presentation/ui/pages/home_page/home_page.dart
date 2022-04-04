@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/domain/entities/user_entity.dart';
+import 'package:organizze_app/presentation/ui/pages/notification_page/notification_page.dart';
+import 'package:organizze_app/presentation/ui/pages/user_settings_page/user_settings_page.dart';
 
 class HomePage extends StatefulWidget {
   final UserEntity loggedUser;
@@ -94,7 +96,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       color: Colors.blue,
       width: MediaQuery.of(context).size.width,
-      height: 200,
+      height: 220,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 35, 17, 18),
         child: Row(
@@ -109,7 +111,13 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(
                   Icons.account_circle_outlined,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    UserSettingsPage.routeName,
+                    arguments: widget.loggedUser,
+                  );
+                },
               ),
             ),
             Padding(
@@ -143,7 +151,13 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
                 iconSize: 30,
                 icon: const Icon(Icons.notifications_outlined),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    NotificationPage.routeName,
+                    arguments: widget.loggedUser,
+                  );
+                },
               ),
             ),
           ],
