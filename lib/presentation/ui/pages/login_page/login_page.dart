@@ -30,7 +30,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
-  bool _accessWithBiometry = false;
 
   String? userError;
   String? passwordError;
@@ -77,9 +76,6 @@ class _LoginPageState extends State<LoginPage> {
             (exception) => {},
             (result) => {
               setState(() {
-                if (result['accessWithBiometry']) {
-                  _accessWithBiometry = result['accessWithBiometry'];
-                }
                 _userTextController.text = result['user'];
                 _passwordTextController.text = result['password'];
                 _readingOnly = true;
@@ -272,7 +268,6 @@ class _LoginPageState extends State<LoginPage> {
               _loginPageController.saveLoginOptionsLocal({
                 'user': _userTextController.text,
                 'password': _passwordTextController.text,
-                'accessWithBiometry': _accessWithBiometry
               }),
               setState(() {
                 _isLoading = false;

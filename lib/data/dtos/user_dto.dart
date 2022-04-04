@@ -5,12 +5,10 @@ class UserDto extends UserEntity {
     required String name,
     required String user,
     required String password,
-    required bool loginWithBiometry,
   }) : super(
           name: name,
           user: user,
           password: password,
-          loginWithBiometry: loginWithBiometry,
         );
 
   static UserDto fromMap(Map<String, dynamic> map) {
@@ -18,7 +16,6 @@ class UserDto extends UserEntity {
       name: map['name'],
       user: map['user'],
       password: map['password'],
-      loginWithBiometry: map['accessWithBiometry'],
     );
   }
 }

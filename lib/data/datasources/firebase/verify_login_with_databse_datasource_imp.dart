@@ -10,7 +10,8 @@ class VerifyLoginWithDatabaseDatasourceImp
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
     try {
-      var result = await users.where('user', isEqualTo: user).get();
+      var result =
+          await users.where('user', isEqualTo: user.toLowerCase()).get();
 
       if (result.docs.isEmpty) {
         return left(UserNotfound());
