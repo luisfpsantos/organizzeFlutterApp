@@ -1,45 +1,96 @@
-import 'package:dartz/dartz.dart';
-import 'package:organizze_app/domain/entities/user_entity.dart';
-import 'package:organizze_app/domain/usecases/get_auth_biometry/get_auth_biometry_usecase.dart';
+import 'package:flutter/material.dart';
+import 'package:organizze_app/domain/errors/get_login_options_local_errors.dart';
+import 'package:organizze_app/domain/errors/verify_login_with_database_errors.dart';
 import 'package:organizze_app/domain/usecases/get_login_options_local/get_login_options_local_usecase.dart';
 import 'package:organizze_app/domain/usecases/get_user_in_database/get_user_in_database_usecase.dart';
 import 'package:organizze_app/domain/usecases/save_login_options_local/save_login_options_local_usecase.dart';
 import 'package:organizze_app/domain/usecases/verify_login_with_database/verify_login_with_database_usecase.dart';
+import 'package:organizze_app/presentation/ui/pages/login_page/login_page_state/login_page_states.dart';
 
-class LoginPageController {
+class LoginPageController extends ValueNotifier<LoginPageStates> {
   final VerifyLoginWithDatabaseUsecase _verifyLoginWithDatabaseUsecase;
   final GetUserInDatabaseUsecase _getUserInDatabaseUsecase;
   final SaveLoginOptionsLocalUsecase _saveLoginOptionsLocalUsecase;
   final GetLoginOptionsLocalUsecase _getLoginOptionsLocalUsecase;
-  final GetAuthBiometryUsecase _getAuthBiometryUsecase;
 
   LoginPageController(
     this._verifyLoginWithDatabaseUsecase,
     this._getUserInDatabaseUsecase,
     this._saveLoginOptionsLocalUsecase,
     this._getLoginOptionsLocalUsecase,
-    this._getAuthBiometryUsecase,
-  );
+  ) : super(LoginPageIdle());
 
-  Future<Either<Exception, bool>> verifyLogin(
-      String user, String password) async {
-    return await _verifyLoginWithDatabaseUsecase(user, password);
+  Future verifyLogin(String user, String password) async {
+    value = Onloading();
+    var result = await _verifyLoginWithDatabaseUsecase(user, password);
+    result.fold(
+      (exception) => {
+        if (exception is InvalidUser || exception is UserNotfound)
+          {
+            value = OnError('Usúario Incorreto'),
+          },
+        if (exception is InvalidPassword)
+          {
+            value = OnError('Senha Incorreta'),
+          },
+        if (exception is ErrorDataSource)
+          {
+            value = OnError('Contatar Administrador'),
+          }
+      },
+      (success) => {
+        if (success)
+          {
+            getUserInDatabase(user),
+          }
+        else
+          {
+            value = OnError('Usuario não autenticado'),
+          }
+      },
+    );
   }
 
-  Future<Either<Exception, UserEntity>> getUserInDatabase(String user) async {
-    return await _getUserInDatabaseUsecase(user);
+  Future getUserInDatabase(String user) async {
+    var result = await _getUserInDatabaseUsecase(user);
+    result.fold(
+      (exception) => {
+        value = OnError('Erro ao capturar usuario na base de dados'),
+      },
+      (success) => {
+        value = OnSuccess(success),
+      },
+    );
   }
 
-  Future<Either<Exception, bool>> saveLoginOptionsLocal(
-      Map<String, dynamic> map) async {
-    return await _saveLoginOptionsLocalUsecase(map);
+  Future saveLoginOptionsLocal(Map<String, dynamic> map) async {
+    var result = await _saveLoginOptionsLocalUsecase(map);
+    result.fold(
+      (exception) => {
+        value = OnError('Não foi possivel Guardar informações do usúario'),
+      },
+      (success) => {
+        value = LoginPageIdle(),
+      },
+    );
   }
 
-  Future<Either<Exception, Map<String, dynamic>>> getLoginOptionsLocal() async {
-    return await _getLoginOptionsLocalUsecase();
-  }
-
-  Future<Either<Exception, bool>> getAuthBiometry() async {
-    return await _getAuthBiometryUsecase();
+  Future getLoginOptionsLocal() async {
+    var result = await _getLoginOptionsLocalUsecase();
+    result.fold(
+      (exception) => {
+        if (exception is LoginLocalNotFound)
+          {
+            value = OptionsLoginFounded(false, {}),
+          },
+        if (exception is GetLoginOptionsDatasourceError)
+          {
+            value = OnError('Falha ao buscar usuario salvo'),
+          }
+      },
+      (success) => {
+        value = OptionsLoginFounded(true, success),
+      },
+    );
   }
 }

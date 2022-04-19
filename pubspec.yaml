@@ -27,11 +27,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  firebase_core:
-  cloud_firestore:
-  dartz:
-  shared_preferences:
-  local_auth:
+  firebase_core:  #firebase
+  cloud_firestore: #firebase
+  dartz: #for either better code
+  shared_preferences: # for storage local data
+  local_auth: # for use biometry of device
+  provider: #injeção de dependencias
+  intl:
   flutter:
     sdk: flutter
 
