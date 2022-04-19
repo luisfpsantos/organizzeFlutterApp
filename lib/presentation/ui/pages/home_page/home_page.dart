@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/domain/entities/user_entity.dart';
-import 'package:organizze_app/presentation/ui/pages/notification_page/notification_page.dart';
-import 'package:organizze_app/presentation/ui/pages/user_settings_page/user_settings_page.dart';
+import '../account_entries_page/account_entries_page.dart';
+import '../notification_page/notification_page.dart';
+import '../user_settings_page/user_settings_page.dart';
 
 class HomePage extends StatefulWidget {
   final UserEntity loggedUser;
@@ -50,15 +51,25 @@ class _HomePageState extends State<HomePage> {
               children: [
                 buildhomeAppBar(),
                 biuldCard(
-                  marginTop: 150,
+                  marginTop: 170,
                   itens: Column(
                     children: [
                       buildBalance(),
                       buildMyAccounts(
                         accounts: Column(
                           children: [
-                            buildAccount(),
-                            buildAccount(),
+                            buildAccount(
+                                routName: AccountEntriesPage.routName,
+                                arguments: {
+                                  'loggedUser': widget.loggedUser,
+                                  'accountType': 'Nubank'
+                                }),
+                            buildAccount(
+                                routName: AccountEntriesPage.routName,
+                                arguments: {
+                                  'loggedUser': widget.loggedUser,
+                                  'accountType': 'Inter'
+                                }),
                           ],
                         ),
                       ),
@@ -98,55 +109,60 @@ class _HomePageState extends State<HomePage> {
       width: MediaQuery.of(context).size.width,
       height: 220,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 35, 17, 18),
+        padding: const EdgeInsets.fromLTRB(18, 50, 17, 18),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: IconButton(
-                color: Colors.white,
-                padding: const EdgeInsets.all(0),
-                iconSize: 75,
-                icon: const Icon(
-                  Icons.account_circle_outlined,
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    UserSettingsPage.routeName,
-                    arguments: widget.loggedUser,
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 5, left: 10, top: 25),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    DateTime.now().hour <= 18 ? 'Bom Dia' : 'Boa Noite',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: Color.fromARGB(186, 255, 255, 255),
-                      fontSize: 15,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: IconButton(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(0),
+                    iconSize: 75,
+                    icon: const Icon(
+                      Icons.account_circle_outlined,
                     ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        UserSettingsPage.routeName,
+                        arguments: widget.loggedUser,
+                      );
+                    },
                   ),
-                  Text(
-                    '${widget.loggedUser.name.split(' ')[0]}!',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  )
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 5, left: 10, top: 25),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateTime.now().hour <= 18 ? 'Bom Dia' : 'Boa Noite',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: Color.fromARGB(186, 255, 255, 255),
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        '${widget.loggedUser.name.split(' ')[0]}!',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
             ),
             Padding(
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width - 240, top: 20),
+              padding: const EdgeInsets.only(top: 20),
               child: IconButton(
                 color: Colors.white,
                 iconSize: 30,
@@ -233,7 +249,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildAccount() {
+  Widget buildAccount({required String routName, required Object arguments}) {
     return Column(
       children: [
         ListTile(
@@ -246,10 +262,11 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(
               color: Colors.green,
               fontWeight: FontWeight.w600,
-              fontSize: 15,
             ),
           ),
-          onTap: () {},
+          onTap: () {
+            Navigator.pushNamed(context, routName, arguments: arguments);
+          },
         ),
       ],
     );
