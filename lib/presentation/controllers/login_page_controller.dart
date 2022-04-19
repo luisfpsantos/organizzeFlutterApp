@@ -7,35 +7,37 @@ import 'package:organizze_app/domain/usecases/save_login_options_local/save_logi
 import 'package:organizze_app/domain/usecases/verify_login_with_database/verify_login_with_database_usecase.dart';
 import 'package:organizze_app/presentation/ui/pages/login_page/login_page_state/login_page_states.dart';
 
-class LoginPageController extends ValueNotifier<LoginPageStates> {
+class LoginPageController {
   final VerifyLoginWithDatabaseUsecase _verifyLoginWithDatabaseUsecase;
   final GetUserInDatabaseUsecase _getUserInDatabaseUsecase;
   final SaveLoginOptionsLocalUsecase _saveLoginOptionsLocalUsecase;
   final GetLoginOptionsLocalUsecase _getLoginOptionsLocalUsecase;
+  final loginPageState = ValueNotifier<LoginPageStates>(LoginPageIdle());
+  final checkbox = ValueNotifier<LoginPageStates>(LoginCheckbox(false));
 
   LoginPageController(
     this._verifyLoginWithDatabaseUsecase,
     this._getUserInDatabaseUsecase,
     this._saveLoginOptionsLocalUsecase,
     this._getLoginOptionsLocalUsecase,
-  ) : super(LoginPageIdle());
+  );
 
   Future verifyLogin(String user, String password) async {
-    value = Onloading();
+    loginPageState.value = Onloading();
     var result = await _verifyLoginWithDatabaseUsecase(user, password);
     result.fold(
       (exception) => {
         if (exception is InvalidUser || exception is UserNotfound)
           {
-            value = OnError('Usúario Incorreto'),
+            loginPageState.value = OnError('Usúario Incorreto'),
           },
         if (exception is InvalidPassword)
           {
-            value = OnError('Senha Incorreta'),
+            loginPageState.value = OnError('Senha Incorreta'),
           },
         if (exception is ErrorDataSource)
           {
-            value = OnError('Contatar Administrador'),
+            loginPageState.value = OnError('Contatar Administrador'),
           }
       },
       (success) => {
@@ -45,7 +47,7 @@ class LoginPageController extends ValueNotifier<LoginPageStates> {
           }
         else
           {
-            value = OnError('Usuario não autenticado'),
+            loginPageState.value = OnError('Usuario não autenticado'),
           }
       },
     );
@@ -55,10 +57,11 @@ class LoginPageController extends ValueNotifier<LoginPageStates> {
     var result = await _getUserInDatabaseUsecase(user);
     result.fold(
       (exception) => {
-        value = OnError('Erro ao capturar usuario na base de dados'),
+        loginPageState.value =
+            OnError('Erro ao capturar usuario na base de dados'),
       },
       (success) => {
-        value = OnSuccess(success),
+        loginPageState.value = OnSuccess(success),
       },
     );
   }
@@ -67,10 +70,11 @@ class LoginPageController extends ValueNotifier<LoginPageStates> {
     var result = await _saveLoginOptionsLocalUsecase(map);
     result.fold(
       (exception) => {
-        value = OnError('Não foi possivel Guardar informações do usúario'),
+        loginPageState.value =
+            OnError('Não foi possivel Guardar informações do usúario'),
       },
       (success) => {
-        value = LoginPageIdle(),
+        loginPageState.value = LoginPageIdle(),
       },
     );
   }
@@ -81,15 +85,16 @@ class LoginPageController extends ValueNotifier<LoginPageStates> {
       (exception) => {
         if (exception is LoginLocalNotFound)
           {
-            value = OptionsLoginFounded(false, {}),
+            loginPageState.value = OptionsLoginFounded(false, {}),
           },
         if (exception is GetLoginOptionsDatasourceError)
           {
-            value = OnError('Falha ao buscar usuario salvo'),
+            loginPageState.value = OnError('Falha ao buscar usuario salvo'),
           }
       },
       (success) => {
-        value = OptionsLoginFounded(true, success),
+        checkbox.value = LoginCheckbox(true),
+        loginPageState.value = OptionsLoginFounded(true, success),
       },
     );
   }

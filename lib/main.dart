@@ -12,7 +12,7 @@ void main() async {
   );
   runApp(
     MultiProvider(
-      providers: AppProvider.providers(),
+      providers: AppProviders.providers(),
       child: const MyApp(),
     ),
   );

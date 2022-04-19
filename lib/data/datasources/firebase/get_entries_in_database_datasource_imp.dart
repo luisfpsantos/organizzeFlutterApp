@@ -54,7 +54,6 @@ class GetEntriesInDataBaseDatasourceImp
       }
       return right(userEntries);
     } catch (e) {
-      print(e);
       return left(GetEntriesInDatabaseDatasourceError());
     }
   }

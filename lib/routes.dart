@@ -11,11 +11,13 @@ class AppRoutes {
     switch (settings.name) {
       case LoginPage.routName:
         return MaterialPageRoute(builder: (context) => const LoginPage());
+
       case HomePage.routName:
         final homePageArgs = settings.arguments as UserEntity;
         return MaterialPageRoute(
           builder: (context) => HomePage(loggedUser: homePageArgs),
         );
+
       case UserSettingsPage.routeName:
         final userSettingsPageArgs = settings.arguments as UserEntity;
         return MaterialPageRoute(
@@ -23,6 +25,7 @@ class AppRoutes {
             loggedUser: userSettingsPageArgs,
           ),
         );
+
       case NotificationPage.routeName:
         final notificationPageArgs = settings.arguments as UserEntity;
         return MaterialPageRoute(
@@ -30,6 +33,7 @@ class AppRoutes {
             loggedUser: notificationPageArgs,
           ),
         );
+
       case AccountEntriesPage.routName:
         final accountEntriesPageArgs =
             settings.arguments as Map<String, dynamic>;
@@ -39,6 +43,7 @@ class AppRoutes {
             accountName: accountEntriesPageArgs['accountType'],
           ),
         );
+
       default:
         return MaterialPageRoute(
           builder: (context) => Scaffold(

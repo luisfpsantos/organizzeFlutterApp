@@ -44,3 +44,9 @@ class OptionsLoginFounded extends LoginPageStates {
 
   OptionsLoginFounded(this.hasLogin, this.login);
 }
+
+class LoginCheckbox extends LoginPageStates {
+  final bool cheked;
+
+  LoginCheckbox(this.cheked);
+}
