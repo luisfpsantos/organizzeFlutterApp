@@ -44,9 +44,8 @@ class _LoginPageState extends State<LoginPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
                     child: ValueListenableBuilder<LoginPageStates>(
-                      valueListenable: _loginPageController,
+                      valueListenable: _loginPageController.loginPageState,
                       builder: (_, state, __) {
-                        print(state);
                         if (state is Onloading) {
                           return LoginInputUserWidget(
                             readingOnly: true,
@@ -94,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(30, 0, 30, 5),
                     child: ValueListenableBuilder<LoginPageStates>(
-                      valueListenable: _loginPageController,
+                      valueListenable: _loginPageController.loginPageState,
                       builder: (_, state, __) {
                         if (state is Onloading) {
                           return LoginInputPasswordWidget(
@@ -144,37 +143,22 @@ class _LoginPageState extends State<LoginPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 25, 20),
                     child: ValueListenableBuilder<LoginPageStates>(
-                      valueListenable: _loginPageController,
-                      builder: (_, state, __) {
-                        var _value = false;
-                        if (state is OptionsLoginFounded) {
-                          if (state.hasLogin) {
-                            return LoginCheckboxRemembermeWidget(
-                              value: _value = true,
-                              onChanged: (value) {
-                                setState(() {
-                                  _value = value!;
-                                });
-                              },
-                            );
-                          }
-                        }
-
-                        return LoginCheckboxRemembermeWidget(
-                          value: _value,
-                          onChanged: (value) {
-                            setState(() {
-                              _value = value!;
-                            });
-                          },
-                        );
-                      },
-                    ),
+                        valueListenable: _loginPageController.checkbox,
+                        builder: (_, state, __) {
+                          state as LoginCheckbox;
+                          return LoginCheckboxRemembermeWidget(
+                            value: state.cheked,
+                            onChanged: (value) {
+                              _loginPageController.checkbox.value =
+                                  LoginCheckbox(value!);
+                            },
+                          );
+                        }),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
                     child: ValueListenableBuilder<LoginPageStates>(
-                      valueListenable: _loginPageController,
+                      valueListenable: _loginPageController.loginPageState,
                       builder: (_, state, __) {
                         if (state is Onloading) {
                           return const CircularProgressIndicator();
