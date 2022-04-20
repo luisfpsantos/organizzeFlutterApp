@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/presentation/controllers/login_page_controller.dart';
-import 'package:organizze_app/presentation/ui/pages/login_page/login_page_widgets/login_checkbox_remeberme_widget.dart';
-import 'package:organizze_app/presentation/ui/pages/login_page/login_page_widgets/login_input_password_widget.dart';
-import 'package:organizze_app/presentation/ui/pages/login_page/login_page_widgets/login_submit_button_widget.dart';
+import 'package:organizze_app/presentation/ui/pages/home_page/home_page.dart';
+import 'package:organizze_app/presentation/ui/pages/login_page/login_page_widgets/login_page_checkbox_remeberme_widget.dart';
+import 'package:organizze_app/presentation/ui/pages/login_page/login_page_widgets/login_page_input_password_widget.dart';
+import 'package:organizze_app/presentation/ui/pages/login_page/login_page_widgets/login_page_submit_button_widget.dart';
 import 'package:provider/provider.dart';
-
 import 'login_page_state/login_page_states.dart';
-import 'login_page_widgets/login_input_user_widget.dart';
-import 'login_page_widgets/login_title_widget.dart';
+import 'login_page_widgets/login_page_input_user_widget.dart';
+import 'login_page_widgets/login_page_title_widget.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -19,6 +19,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final inputUserController = TextEditingController();
+  final inputPassowordController = TextEditingController();
   late final LoginPageController _loginPageController;
 
   @override
@@ -49,43 +51,29 @@ class _LoginPageState extends State<LoginPage> {
                         if (state is Onloading) {
                           return LoginInputUserWidget(
                             readingOnly: true,
-                            controller: state.inputUserController,
+                            controller: inputUserController,
                           );
                         }
 
                         if (state is OnError) {
                           return LoginInputUserWidget(
                             readingOnly: false,
-                            controller: state.inputUserController,
-                            errorText: state.inputUserError(),
+                            controller: inputUserController,
+                            errorText: state.inputUserError,
                           );
                         }
 
                         if (state is OptionsLoginFounded) {
-                          if (state.hasLogin) {
-                            state.setInputUserValue();
-                            return LoginInputUserWidget(
-                              readingOnly: true,
-                              controller: state.inputUserController,
-                            );
-                          } else {
-                            return LoginInputUserWidget(
-                              readingOnly: false,
-                              controller: state.inputUserController,
-                            );
-                          }
-                        }
-
-                        if (state is OnSuccess) {
+                          inputUserController.text = state.login['user'];
                           return LoginInputUserWidget(
                             readingOnly: true,
-                            controller: state.inputUserController,
+                            controller: inputUserController,
                           );
                         }
 
                         return LoginInputUserWidget(
                           readingOnly: false,
-                          controller: state.inputUserController,
+                          controller: inputUserController,
                         );
                       },
                     ),
@@ -98,44 +86,30 @@ class _LoginPageState extends State<LoginPage> {
                         if (state is Onloading) {
                           return LoginInputPasswordWidget(
                             readingOnly: true,
-                            controller: state.inputPassowordController,
+                            controller: inputPassowordController,
                           );
                         }
 
                         if (state is OnError) {
                           return LoginInputPasswordWidget(
                             readingOnly: false,
-                            controller: state.inputPassowordController,
-                            errorText: state.inputPasswordError(),
+                            controller: inputPassowordController,
+                            errorText: state.inputPasswordError,
                           );
                         }
 
                         if (state is OptionsLoginFounded) {
-                          if (state.hasLogin) {
-                            state.inputPassowordController.text =
-                                state.login['password'];
-                            return LoginInputPasswordWidget(
-                              readingOnly: true,
-                              controller: state.inputPassowordController,
-                            );
-                          } else {
-                            return LoginInputPasswordWidget(
-                              readingOnly: false,
-                              controller: state.inputPassowordController,
-                            );
-                          }
-                        }
-
-                        if (state is OnSuccess) {
+                          inputPassowordController.text =
+                              state.login['password'];
                           return LoginInputPasswordWidget(
                             readingOnly: true,
-                            controller: state.inputPassowordController,
+                            controller: inputPassowordController,
                           );
                         }
 
                         return LoginInputPasswordWidget(
                           readingOnly: false,
-                          controller: state.inputPassowordController,
+                          controller: inputPassowordController,
                         );
                       },
                     ),
@@ -143,17 +117,23 @@ class _LoginPageState extends State<LoginPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 25, 20),
                     child: ValueListenableBuilder<LoginPageStates>(
-                        valueListenable: _loginPageController.checkbox,
-                        builder: (_, state, __) {
-                          state as LoginCheckbox;
-                          return LoginCheckboxRemembermeWidget(
-                            value: state.cheked,
-                            onChanged: (value) {
-                              _loginPageController.checkbox.value =
-                                  LoginCheckbox(value!);
-                            },
-                          );
-                        }),
+                      valueListenable: _loginPageController.checkbox,
+                      builder: (_, state, __) {
+                        state as LoginCheckbox;
+
+                        return LoginCheckboxRemembermeWidget(
+                          value: state.cheked,
+                          onChanged: (value) {
+                            if (!value!) {
+                              _loginPageController.loginPageState.value =
+                                  LoginPageIdle();
+                            }
+                            _loginPageController.checkbox.value =
+                                LoginCheckbox(value);
+                          },
+                        );
+                      },
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
@@ -164,11 +144,15 @@ class _LoginPageState extends State<LoginPage> {
                           return const CircularProgressIndicator();
                         }
 
-                        return LoginSubmitButtonWidget(onPressed: () {
-                          _loginPageController.verifyLogin(
-                              state.inputUserController.text,
-                              state.inputPassowordController.text);
-                        });
+                        return LoginSubmitButtonWidget(
+                          onPressed: () async {
+                            await _loginPageController.verifyLogin(
+                              inputUserController.text,
+                              inputPassowordController.text,
+                            );
+                            doLogin();
+                          },
+                        );
                       },
                     ),
                   ),
@@ -179,5 +163,32 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  doLogin() async {
+    if (_loginPageController.loginPageState.value is UserVerified) {
+      await _loginPageController.getUserInDatabase(inputUserController.text);
+
+      if (_loginPageController.loginPageState.value is OnSuccess) {
+        var checkbox =
+            (_loginPageController.checkbox.value as LoginCheckbox).cheked;
+
+        var loggedUser =
+            (_loginPageController.loginPageState.value as OnSuccess).loggedUser;
+
+        if (checkbox) {
+          _loginPageController.saveLoginOptionsLocal({
+            'user': inputUserController.text,
+            'password': inputPassowordController.text,
+          });
+          Navigator.pushReplacementNamed(context, HomePage.routName,
+              arguments: loggedUser);
+        } else {
+          _loginPageController.saveLoginOptionsLocal({});
+          Navigator.pushReplacementNamed(context, HomePage.routName,
+              arguments: loggedUser);
+        }
+      }
+    }
   }
 }

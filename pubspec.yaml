@@ -33,7 +33,7 @@ dependencies:
   shared_preferences: # for storage local data
   local_auth: # for use biometry of device
   provider: #injeção de dependencias
-  intl:
+  #intl:
   flutter:
     sdk: flutter
 
