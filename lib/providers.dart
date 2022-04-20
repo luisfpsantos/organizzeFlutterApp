@@ -5,8 +5,8 @@ class AppProviders {
   static List<SingleChildWidget> providers() {
     List<SingleChildWidget> allProviders = [];
 
-    LoginPageDependencies.providers().forEach((element) {
-      allProviders.add(element);
+    LoginPageDependencies.providers().forEach((provider) {
+      allProviders.add(provider);
     });
 
     return allProviders;

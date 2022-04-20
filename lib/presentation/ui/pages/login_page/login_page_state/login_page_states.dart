@@ -1,27 +1,19 @@
-import 'package:flutter/cupertino.dart';
 import 'package:organizze_app/domain/entities/user_entity.dart';
 
-class LoginPageStates {
-  final inputUserController = TextEditingController();
-  final inputPassowordController = TextEditingController();
-}
+abstract class LoginPageStates {}
 
 class LoginPageIdle extends LoginPageStates {}
 
 class Onloading extends LoginPageStates {}
 
+class UserVerified extends LoginPageStates {}
+
 class OnError extends LoginPageStates {
-  final String msgError;
+  final String? msgError;
+  final String? inputUserError;
+  final String? inputPasswordError;
 
-  OnError(this.msgError);
-
-  String inputUserError() {
-    return msgError;
-  }
-
-  String inputPasswordError() {
-    return msgError;
-  }
+  OnError({this.msgError, this.inputUserError, this.inputPasswordError});
 }
 
 class OnSuccess extends LoginPageStates {
@@ -31,18 +23,9 @@ class OnSuccess extends LoginPageStates {
 }
 
 class OptionsLoginFounded extends LoginPageStates {
-  final bool hasLogin;
   final Map<String, dynamic> login;
 
-  setInputUserValue() {
-    inputUserController.text = login['user'];
-  }
-
-  setInputPasswordValue() {
-    inputUserController.text = login['password'];
-  }
-
-  OptionsLoginFounded(this.hasLogin, this.login);
+  OptionsLoginFounded(this.login);
 }
 
 class LoginCheckbox extends LoginPageStates {

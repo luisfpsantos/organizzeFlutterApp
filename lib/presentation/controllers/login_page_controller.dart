@@ -24,41 +24,45 @@ class LoginPageController {
 
   Future verifyLogin(String user, String password) async {
     loginPageState.value = Onloading();
+
     var result = await _verifyLoginWithDatabaseUsecase(user, password);
     result.fold(
       (exception) => {
         if (exception is InvalidUser || exception is UserNotfound)
           {
-            loginPageState.value = OnError('Usúario Incorreto'),
+            loginPageState.value = OnError(inputUserError: 'Usuario Incorreto'),
           },
         if (exception is InvalidPassword)
           {
-            loginPageState.value = OnError('Senha Incorreta'),
+            loginPageState.value =
+                OnError(inputPasswordError: 'Senha Incorreta'),
           },
         if (exception is ErrorDataSource)
           {
-            loginPageState.value = OnError('Contatar Administrador'),
+            loginPageState.value = OnError(msgError: 'Contatar Administrador'),
           }
       },
       (success) => {
         if (success)
           {
-            getUserInDatabase(user),
+            loginPageState.value = UserVerified(),
           }
         else
           {
-            loginPageState.value = OnError('Usuario não autenticado'),
+            loginPageState.value = OnError(msgError: 'Usuario não autenticado'),
           }
       },
     );
   }
 
   Future getUserInDatabase(String user) async {
+    loginPageState.value = Onloading();
+
     var result = await _getUserInDatabaseUsecase(user);
     result.fold(
       (exception) => {
         loginPageState.value =
-            OnError('Erro ao capturar usuario na base de dados'),
+            OnError(msgError: 'Erro ao capturar usuario na base de dados'),
       },
       (success) => {
         loginPageState.value = OnSuccess(success),
@@ -70,12 +74,10 @@ class LoginPageController {
     var result = await _saveLoginOptionsLocalUsecase(map);
     result.fold(
       (exception) => {
-        loginPageState.value =
-            OnError('Não foi possivel Guardar informações do usúario'),
+        loginPageState.value = OnError(
+            msgError: 'Não foi possivel Guardar informações do usúario'),
       },
-      (success) => {
-        loginPageState.value = LoginPageIdle(),
-      },
+      (success) => {},
     );
   }
 
@@ -85,16 +87,17 @@ class LoginPageController {
       (exception) => {
         if (exception is LoginLocalNotFound)
           {
-            loginPageState.value = OptionsLoginFounded(false, {}),
+            loginPageState.value = LoginPageIdle(),
           },
         if (exception is GetLoginOptionsDatasourceError)
           {
-            loginPageState.value = OnError('Falha ao buscar usuario salvo'),
+            loginPageState.value =
+                OnError(msgError: 'Falha ao buscar usuario salvo'),
           }
       },
       (success) => {
         checkbox.value = LoginCheckbox(true),
-        loginPageState.value = OptionsLoginFounded(true, success),
+        loginPageState.value = OptionsLoginFounded(success),
       },
     );
   }
