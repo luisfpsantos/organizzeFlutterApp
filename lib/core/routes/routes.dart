@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/domain/entities/user_entity.dart';
 import 'package:organizze_app/presentation/ui/pages/account_entries_page/account_entries_page.dart';
-import 'presentation/ui/pages/home_page/home_page.dart';
-import 'presentation/ui/pages/login_page/login_page.dart';
-import 'presentation/ui/pages/notification_page/notification_page.dart';
-import 'presentation/ui/pages/user_settings_page/user_settings_page.dart';
+import '../../presentation/ui/pages/home_page/home_page.dart';
+import '../../presentation/ui/pages/login_page/login_page.dart';
+import '../../presentation/ui/pages/notification_page/notification_page.dart';
+import '../../presentation/ui/pages/user_settings_page/user_settings_page.dart';
 
 class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -40,7 +40,6 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (context) => AccountEntriesPage(
             loggedUser: accountEntriesPageArgs['loggedUser'],
-            accountName: accountEntriesPageArgs['accountType'],
           ),
         );
 

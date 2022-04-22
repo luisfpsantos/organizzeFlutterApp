@@ -10,10 +10,9 @@ class GetEntriesInDataBaseRepositoryImp extends GetEntriesInDataBaseRepository {
   @override
   Future<Either<Exception, List<UserEntryEntity>>> call({
     required String loggedUser,
-    required String accountType,
     List<Map<String, dynamic>>? query,
   }) async {
     return await _getEntriesInDataBaseDatasource(
-        loggedUser: loggedUser, accountType: accountType, query: query);
+        loggedUser: loggedUser, query: query);
   }
 }

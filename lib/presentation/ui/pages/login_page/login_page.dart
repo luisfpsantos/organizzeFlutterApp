@@ -31,6 +31,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _loginPageController.checkbox.dispose();
+    _loginPageController.loginPageState.dispose();
+    print('fui desposado');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 240, 242, 245),

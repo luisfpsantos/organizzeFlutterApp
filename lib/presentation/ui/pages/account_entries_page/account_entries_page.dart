@@ -10,9 +10,7 @@ import 'package:organizze_app/presentation/controllers/account_entries_page_cont
 
 class AccountEntriesPage extends StatefulWidget {
   final UserEntity loggedUser;
-  final String accountName;
-  const AccountEntriesPage(
-      {Key? key, required this.loggedUser, required this.accountName})
+  const AccountEntriesPage({Key? key, required this.loggedUser})
       : super(key: key);
 
   static const routName = '/accountEntries';
@@ -42,8 +40,7 @@ class _AccountEntriesPageState extends State<AccountEntriesPage> {
     );
 
     _accountEntriesPageController
-        .getEntriesInDataBase(
-            loggedUser: widget.loggedUser.user, accountType: widget.accountName)
+        .getEntriesInDataBase(loggedUser: widget.loggedUser.user)
         .then(
       (result) {
         result.fold(

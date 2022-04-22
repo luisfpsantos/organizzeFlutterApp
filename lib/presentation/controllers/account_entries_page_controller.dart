@@ -9,9 +9,9 @@ class AccountEntriesPageController {
 
   Future<Either<Exception, List<UserEntryEntity>>> getEntriesInDataBase({
     required String loggedUser,
-    required String accountType,
+    List<Map<String, dynamic>>? query,
   }) async {
     return await _getEntriesInDataBaseUsecase(
-        loggedUser: loggedUser, accountType: accountType);
+        loggedUser: loggedUser, query: query);
   }
 }
