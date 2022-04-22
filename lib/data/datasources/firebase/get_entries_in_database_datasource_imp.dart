@@ -10,7 +10,6 @@ class GetEntriesInDataBaseDatasourceImp
   @override
   Future<Either<Exception, List<UserEntryEntity>>> call({
     required String loggedUser,
-    required String accountType,
     List<Map<String, dynamic>>? query,
   }) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
@@ -23,9 +22,7 @@ class GetEntriesInDataBaseDatasourceImp
       CollectionReference collectionEntries = FirebaseFirestore.instance
           .collection('users/${user.docs[0].id}/entries');
 
-      Query _query = collectionEntries
-          .orderBy('date', descending: false)
-          .where('accountType', isEqualTo: accountType);
+      Query _query = collectionEntries.orderBy('date', descending: false);
 
       if (query != null) {
         for (var q in query) {

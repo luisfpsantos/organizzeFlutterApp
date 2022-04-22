@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:organizze_app/domain/entities/user_entries_entity.dart';
 
 class UserEntryDto extends UserEntryEntity {
@@ -33,10 +34,11 @@ class UserEntryDto extends UserEntryEntity {
     return {
       'description': description,
       'entryType': entryType,
-      'date': date,
+      'date': Timestamp.fromDate(date),
       'amount': amount,
       'category': category,
-      'status': status
+      'status': status,
+      'accountType': accountType
     };
   }
 }

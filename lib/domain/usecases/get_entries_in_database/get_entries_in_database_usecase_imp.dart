@@ -10,10 +10,9 @@ class GetEntriesInDataBaseUsecaseImp implements GetEntriesInDataBaseUsecase {
   @override
   Future<Either<Exception, List<UserEntryEntity>>> call({
     required String loggedUser,
-    required String accountType,
     List<Map<String, dynamic>>? query,
   }) async {
     return await _getEntriesInDataBaseRepository(
-        accountType: accountType, loggedUser: loggedUser, query: query);
+        loggedUser: loggedUser, query: query);
   }
 }
