@@ -23,7 +23,7 @@ class UserEntryDto extends UserEntryEntity {
     return UserEntryDto(
         amount: map['amount'],
         category: map['category'],
-        date: map['date'],
+        date: (map['date'] as Timestamp).toDate(),
         description: map['description'],
         entryType: map['entryType'],
         status: map['status'],

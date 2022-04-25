@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:organizze_app/domain/entities/user_entity.dart';
 import 'package:organizze_app/presentation/ui/pages/account_entries_page/account_entries_page.dart';
+import 'package:organizze_app/presentation/ui/pages/add_account_page/add_account_page.dart';
+import 'package:organizze_app/presentation/ui/pages/add_antries_page/add_entries_page.dart';
 import '../../presentation/ui/pages/home_page/home_page.dart';
 import '../../presentation/ui/pages/login_page/login_page.dart';
 import '../../presentation/ui/pages/notification_page/notification_page.dart';
@@ -41,6 +43,18 @@ class AppRoutes {
           builder: (context) => AccountEntriesPage(
             loggedUser: accountEntriesPageArgs['loggedUser'],
           ),
+        );
+
+      case AddAccountPage.routName:
+        final addAccountPageArgs = settings.arguments as UserEntity;
+        return MaterialPageRoute(
+          builder: (context) => AddAccountPage(loggedUser: addAccountPageArgs),
+        );
+
+      case AddEntriesPage.routName:
+        final addEntriesPageArgs = settings.arguments as UserEntity;
+        return MaterialPageRoute(
+          builder: (context) => AddEntriesPage(loggedUser: addEntriesPageArgs),
         );
 
       default:

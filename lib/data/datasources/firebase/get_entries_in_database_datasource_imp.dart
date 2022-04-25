@@ -37,17 +37,8 @@ class GetEntriesInDataBaseDatasourceImp
       }
 
       for (var entry in _entries.docs) {
-        userEntries.add(
-          UserEntryDto(
-            amount: entry['amount'],
-            category: entry['category'],
-            date: (entry['date'] as Timestamp).toDate(),
-            description: entry['description'],
-            entryType: entry['entryType'],
-            status: entry['status'],
-            accountType: entry['accountType'],
-          ),
-        );
+        userEntries
+            .add(UserEntryDto.fromMap(entry.data() as Map<String, dynamic>));
       }
       return right(userEntries);
     } catch (e) {

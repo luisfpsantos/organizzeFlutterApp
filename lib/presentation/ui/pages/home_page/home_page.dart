@@ -21,13 +21,26 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> screens = [
-      const DashboardPage(),
-      const AddEntriesPage(),
+      DashboardPage(loggedUser: widget.loggedUser),
       AccountEntriesPage(loggedUser: widget.loggedUser),
     ];
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 240, 242, 245),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(
+          Icons.add,
+          size: 30,
+        ),
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            AddEntriesPage.routName,
+            arguments: widget.loggedUser,
+          );
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AppBottomNavigationBar(
         currentIndex: indexPage,
         onTaped: (value) {

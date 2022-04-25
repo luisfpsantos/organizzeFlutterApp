@@ -27,13 +27,6 @@ class AppBottomNavigationBar extends StatelessWidget {
       label: 'Home',
     ),
     BottomNavigationBarItem(
-      icon: Icon(
-        Icons.add,
-        color: Colors.green,
-      ),
-      label: 'Add',
-    ),
-    BottomNavigationBarItem(
       icon: Icon(Icons.compare_arrows),
       label: 'Transactions',
     ),

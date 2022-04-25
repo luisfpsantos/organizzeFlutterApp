@@ -31,36 +31,33 @@ class AddEntryTypeSelect extends StatelessWidget {
       height: 220,
       child: Column(
         children: [
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextButton(
-                onPressed: expensePressed,
-                child: Text(
-                  'Despesa',
-                  style: TextStyle(
-                    color: textExpenseColor,
+              const BackButton(),
+              Expanded(
+                child: TextButton(
+                  onPressed: expensePressed,
+                  child: Text(
+                    'Despesa',
+                    style: TextStyle(color: textExpenseColor),
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: incomePressed,
-                child: Text(
-                  'Receita',
-                  style: TextStyle(
-                    color: textIncomeColor,
+              Expanded(
+                child: TextButton(
+                  onPressed: incomePressed,
+                  child: Text(
+                    'Receita',
+                    style: TextStyle(color: textIncomeColor),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(
-            height: 30,
-          ),
+          const SizedBox(height: 30),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: TextField(
